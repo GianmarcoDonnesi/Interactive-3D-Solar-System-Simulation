@@ -4,7 +4,18 @@ import { createSun, createPlanets, createAsteroids, createOrbits } from './objec
 import { addControls } from './controls.js';
 import { animate } from './animate.js';
 
-let scene, camera, renderer, sun, planets, light, asteroids, background;
+let scene, camera, renderer, sun, planets, light, asteroids, background, raycaster, mouse;
+const planetData = [
+    { name: 'Mercury', distance: 2 },
+    { name: 'Venus', distance: 3 },
+    { name: 'Earth', distance: 4 },
+    { name: 'Mars', distance: 5 },
+    { name: 'Jupiter', distance: 7 },
+    { name: 'Saturn', distance: 9 },
+    { name: 'Uranus', distance: 11 },
+    { name: 'Neptune', distance: 13 },
+    { name: 'Pluto', distance: 15 }
+];
 
 const settings = {
     currentRotationSpeed: 0.01,
@@ -19,6 +30,9 @@ function init() {
     camera = createCamera(THREE);
     document.body.appendChild(renderer.domElement);
 
+    raycaster = new THREE.Raycaster();
+    mouse = new THREE.Vector2();
+
     const textureLoader = new THREE.TextureLoader();
 
     // Add the sun to the scene
@@ -27,16 +41,16 @@ function init() {
     scene.add(sun);
 
     // Add planets to the scene
-    const planetDistances = [2, 3, 4, 5, 7, 9, 11, 13, 15]; // Distances for Mercury to Pluto
     planets = createPlanets(THREE, textureLoader);
-    planets.forEach(planet => {
+    planets.forEach((planet, index) => {
         planet.castShadow = true; // Enable shadows for the planets
         planet.receiveShadow = true;
+        planet.userData = planetData[index]; // Store planet data
         scene.add(planet);
     });
 
     // Add orbits to the scene
-    const orbits = createOrbits(THREE, planetDistances);
+    const orbits = createOrbits(THREE, planetData.map(data => data.distance));
     orbits.forEach(orbit => scene.add(orbit));
 
     // Add asteroids to the scene
@@ -70,8 +84,35 @@ function init() {
         settings.targetOrbitSpeed = parseFloat(event.target.value);
     });
 
+    // Add event listeners for tooltip
+    window.addEventListener('mousemove', onMouseMove, false);
+    window.addEventListener('click', onClick, false);
+
     // Start the animation loop
     animate(THREE, renderer, scene, camera, sun, planets, settings);
+}
+
+function onMouseMove(event) {
+    event.preventDefault();
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+}
+
+function onClick(event) {
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(planets);
+
+    if (intersects.length > 0) {
+        const planet = intersects[0].object;
+        const tooltip = document.getElementById('tooltip');
+        tooltip.innerHTML = `${planet.userData.name}<br>Distance: ${planet.userData.distance} AU`;
+        tooltip.style.left = `${event.clientX + 5}px`;
+        tooltip.style.top = `${event.clientY + 5}px`;
+        tooltip.style.display = 'block';
+    } else {
+        const tooltip = document.getElementById('tooltip');
+        tooltip.style.display = 'none';
+    }
 }
 
 init();

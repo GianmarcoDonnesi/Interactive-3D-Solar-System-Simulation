@@ -40,31 +40,31 @@ export function createPlanets(THREE, textureLoader) {
     const mercury = createPlanet(THREE, 0.5, 'textures/mercury.jpg', 2, textureLoader, false);
     planets.push(mercury);
 
-    const venus = createPlanet(THREE, 0.6, 'textures/venus.jpg', 4, textureLoader, false);
+    const venus = createPlanet(THREE, 0.6, 'textures/venus.jpg', 3, textureLoader, false);
     planets.push(venus);
 
-    const earth = createPlanet(THREE, 0.65, 'textures/earth.jpg', 6, textureLoader, false);
+    const earth = createPlanet(THREE, 0.65, 'textures/earth.jpg', 4, textureLoader, false);
     planets.push(earth);
 
     const moon = createPlanet(THREE, 0.2, 'textures/moon.jpg', 1, textureLoader, false);
     earth.add(moon);
 
-    const mars = createPlanet(THREE, 0.55, 'textures/mars.jpg', 8, textureLoader, false);
+    const mars = createPlanet(THREE, 0.55, 'textures/mars.jpg', 5, textureLoader, false);
     planets.push(mars);
 
-    const jupiter = createPlanet(THREE, 1.1, 'textures/jupiter.jpg',11, textureLoader, false);
+    const jupiter = createPlanet(THREE, 1.1, 'textures/jupiter.jpg',7, textureLoader, false);
     planets.push(jupiter);
 
-    const saturn = createPlanet(THREE, 1, 'textures/saturn.jpg', 14, textureLoader, true);
+    const saturn = createPlanet(THREE, 1, 'textures/saturn.jpg', 9, textureLoader, true);
     planets.push(saturn);
 
-    const uranus = createPlanet(THREE, 0.8, 'textures/uranus.jpg', 17, textureLoader, false);
+    const uranus = createPlanet(THREE, 0.8, 'textures/uranus.jpg', 11, textureLoader, false);
     planets.push(uranus);
 
-    const neptune = createPlanet(THREE, 0.8, 'textures/neptune.jpg', 20, textureLoader, false);
+    const neptune = createPlanet(THREE, 0.8, 'textures/neptune.jpg', 13, textureLoader, false);
     planets.push(neptune);
 
-    const pluto = createPlanet(THREE, 0.3, 'textures/pluto.jpg', 23, textureLoader, false);
+    const pluto = createPlanet(THREE, 0.3, 'textures/pluto.jpg', 15, textureLoader, false);
     planets.push(pluto);
 
     return planets;

@@ -25,6 +25,15 @@
             width: 100%;
             margin-bottom: 10px;
         }
+        .dialog-box {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            pointer-events: none;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -32,8 +41,9 @@
       <label for="rotationSpeed">Planet Rotation Speed</label>
       <input type="range" id="rotationSpeed" min="0" max="0.1" step="0.005" value="0.005">
       <label for="orbitSpeed">Orbit Speed</label>
-      <input type="range" id="orbitSpeed" min="0" max="0.01" step="0.001" value="0.001">
+      <input type="range" id="orbitSpeed" min="0" max="0.001" step="0.0001" value="0.0001">
     </div>
+    <div id="tooltip" class="dialog-box"></div>
     <script type="module" src="./js/main.js"></script>
 </body>
 </html>
