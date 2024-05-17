@@ -40,40 +40,41 @@ export function createPlanets(THREE, textureLoader) {
     const mercury = createPlanet(THREE, 0.5, 'textures/mercury.jpg', 2, textureLoader, false);
     planets.push(mercury);
 
-    const venus = createPlanet(THREE, 0.6, 'textures/venus.jpg', 3, textureLoader, false);
+    const venus = createPlanet(THREE, 0.6, 'textures/venus.jpg', 4, textureLoader, false);
     planets.push(venus);
 
-    const earth = createPlanet(THREE, 0.65, 'textures/earth.jpg', 4, textureLoader, false);
+    const earth = createPlanet(THREE, 0.65, 'textures/earth.jpg', 6, textureLoader, false);
     planets.push(earth);
 
-    const moon = createPlanet(THREE, 0.2, 'textures/moon.jpg', 0.8, textureLoader, false);
+    const moon = createPlanet(THREE, 0.2, 'textures/moon.jpg', 1, textureLoader, false);
     earth.add(moon);
 
-    const mars = createPlanet(THREE, 0.55, 'textures/mars.jpg', 5, textureLoader, false);
+    const mars = createPlanet(THREE, 0.55, 'textures/mars.jpg', 8, textureLoader, false);
     planets.push(mars);
 
-    const jupiter = createPlanet(THREE, 1.1, 'textures/jupiter.jpg', 7, textureLoader, false);
+    const jupiter = createPlanet(THREE, 1.1, 'textures/jupiter.jpg',11, textureLoader, false);
     planets.push(jupiter);
 
-    const saturn = createPlanet(THREE, 1, 'textures/saturn.jpg', 9, textureLoader, true);
+    const saturn = createPlanet(THREE, 1, 'textures/saturn.jpg', 14, textureLoader, true);
     planets.push(saturn);
 
-    const uranus = createPlanet(THREE, 0.8, 'textures/uranus.jpg', 11, textureLoader, false);
+    const uranus = createPlanet(THREE, 0.8, 'textures/uranus.jpg', 17, textureLoader, false);
     planets.push(uranus);
 
-    const neptune = createPlanet(THREE, 0.8, 'textures/neptune.jpg', 13, textureLoader, false);
+    const neptune = createPlanet(THREE, 0.8, 'textures/neptune.jpg', 20, textureLoader, false);
     planets.push(neptune);
 
-    const pluto = createPlanet(THREE, 0.3, 'textures/pluto.jpg', 15, textureLoader, false);
+    const pluto = createPlanet(THREE, 0.3, 'textures/pluto.jpg', 23, textureLoader, false);
     planets.push(pluto);
 
     return planets;
 }
 
-export function createAsteroids(THREE) {
+export function createAsteroids(THREE, textureLoader) {
     const asteroids = [];
     const asteroidGeometry = new THREE.SphereGeometry(0.1, 16, 16);
-    const asteroidMaterial = new THREE.MeshBasicMaterial({ color: 0xaaaaaa });
+    const asteroidTexture = textureLoader.load('textures/asteroid.jpg');
+    const asteroidMaterial = new THREE.MeshBasicMaterial({ map: asteroidTexture });
 
     for (let i = 0; i < 100; i++) {
         const asteroid = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
@@ -86,4 +87,29 @@ export function createAsteroids(THREE) {
     }
 
     return asteroids;
+}
+
+export function createOrbits(THREE, planetDistances) {
+    const orbits = [];
+    const orbitMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff }); // Blue color
+
+    planetDistances.forEach(distance => {
+        const orbitGeometry = new THREE.BufferGeometry();
+        const points = [];
+
+        for (let j = 0; j <= 64; j++) {
+            const theta = (j / 64) * Math.PI * 2;
+            points.push(
+                distance * Math.cos(theta),
+                0,
+                distance * Math.sin(theta)
+            );
+        }
+
+        orbitGeometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+        const orbit = new THREE.Line(orbitGeometry, orbitMaterial);
+        orbits.push(orbit);
+    });
+
+    return orbits;
 }
