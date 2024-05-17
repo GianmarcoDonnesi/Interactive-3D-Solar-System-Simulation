@@ -13,6 +13,13 @@ export function animate(THREE, renderer, scene, camera, sun, planets) {
             planet.position.x = distance * Math.cos(time * (1 + index * 0.1));
             planet.position.z = distance * Math.sin(time * (1 + index * 0.1));
             planet.rotation.y += 0.02;
+
+            // Rotate the moon around the Earth
+            if (planet.name === 'Earth') {
+                const moon = planet.children[0];
+                moon.position.x = 0.8 * Math.cos(time * 2);
+                moon.position.z = 0.8 * Math.sin(time * 2);
+            }
         });
 
         renderer.render(scene, camera);
