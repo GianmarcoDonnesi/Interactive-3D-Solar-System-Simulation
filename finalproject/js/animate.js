@@ -1,4 +1,4 @@
-export function animate(renderer, scene, camera, sun, planets) {
+export function animate(THREE, renderer, scene, camera, sun, planets) {
     function render() {
         requestAnimationFrame(render);
 
