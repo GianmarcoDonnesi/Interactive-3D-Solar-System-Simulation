@@ -1,10 +1,12 @@
 import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
+import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js';
 import { initScene, createRenderer, createCamera, createLight } from './scene.js';
 import { createSun, createPlanets, createAsteroids, createOrbits } from './objects.js';
 import { addControls } from './controls.js';
 import { animate } from './animate.js';
+import SpaceshipControls from './spaceshipControls.js';
 
-let scene, camera, renderer, sun, planets, light, asteroids, background, raycaster, mouse;
+let scene, camera, renderer, sun, planets, light, asteroids, background, raycaster, mouse, spaceship, spaceshipControls, thrusterParticles;
 const planetData = [
     { name: 'Mercury', distance: 2 },
     { name: 'Venus', distance: 3 },
@@ -28,6 +30,9 @@ function init() {
     scene = initScene(THREE);
     renderer = createRenderer(THREE);
     camera = createCamera(THREE);
+    camera.position.set(0, 50, 150); // Adjust camera position to ensure it can see the spaceship
+    camera.lookAt(0, 0, 0);
+
     document.body.appendChild(renderer.domElement);
 
     raycaster = new THREE.Raycaster();
@@ -61,6 +66,10 @@ function init() {
     light = createLight(THREE);
     scene.add(light);
 
+    // Add additional ambient light
+    const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft white light
+    scene.add(ambientLight);
+
     // Add controls
     addControls(THREE, camera, renderer);
 
@@ -73,6 +82,46 @@ function init() {
     });
     background = new THREE.Mesh(starGeometry, starMaterial);
     scene.add(background);
+
+    // Load the spaceship model
+    const loader = new GLTFLoader();
+    loader.load('models/spaceship.glb', (gltf) => {
+        console.log('Spaceship model loaded successfully');
+        spaceship = gltf.scene;
+        spaceship.traverse((child) => {
+            if (child.isMesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+            }
+        });
+        spaceship.scale.set(0.5, 0.5, 0.5); // Adjust the scale if necessary
+        spaceship.position.set(0, 50, -100); // Set initial position of the spaceship at the top
+        spaceship.rotation.x = Math.PI / 4; // Rotate the spaceship to face diagonally downward
+        scene.add(spaceship);
+        console.log('Spaceship added to the scene');
+
+        // Initialize spaceship controls
+        spaceshipControls = new SpaceshipControls(spaceship, 0.5);
+
+        // Start the animation loop with spaceship
+        animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles);
+    }, undefined, (error) => {
+        console.error('Error loading spaceship model:', error);
+    });
+
+    // Create thruster particles
+    const particleGeometry = new THREE.BufferGeometry();
+    const particleCount = 1000;
+    const positions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] = Math.random() * 2 - 1;
+        positions[i * 3 + 1] = Math.random() * 2 - 1;
+        positions[i * 3 + 2] = Math.random() * 2 - 1;
+    }
+    particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const particleMaterial = new THREE.PointsMaterial({ color: 0xff6600, size: 0.1 });
+    thrusterParticles = new THREE.Points(particleGeometry, particleMaterial);
+    scene.add(thrusterParticles);
 
     // Handle rotation speed changes
     document.getElementById('rotationSpeed').addEventListener('input', (event) => {
@@ -87,9 +136,6 @@ function init() {
     // Add event listeners for tooltip
     window.addEventListener('mousemove', onMouseMove, false);
     window.addEventListener('click', onClick, false);
-
-    // Start the animation loop
-    animate(THREE, renderer, scene, camera, sun, planets, settings);
 }
 
 function onMouseMove(event) {
