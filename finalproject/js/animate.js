@@ -38,15 +38,13 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
         if (spaceship) {
             spaceship.position.x -= 0.05; // Move left
             spaceship.position.y -= 0.05; // Move down
-        }
 
-        // Update thruster particles position
-        if (thrusterParticles) {
+            // Update thruster particles position to follow the spaceship
             const positions = thrusterParticles.geometry.attributes.position.array;
             for (let i = 0; i < positions.length; i += 3) {
-                positions[i] = spaceship.position.x + (Math.random() * 2 - 1) * 0.1;
-                positions[i + 1] = spaceship.position.y + (Math.random() * 2 - 1) * 0.1;
-                positions[i + 2] = spaceship.position.z + (Math.random() * 2 - 1) * 0.1;
+                positions[i] = spaceship.position.x + (Math.random() * 2 - 1) * 0.5;
+                positions[i + 1] = spaceship.position.y + (Math.random() * 2 - 1) * 0.5;
+                positions[i + 2] = spaceship.position.z + (Math.random() * 2 - 1) * 0.5;
             }
             thrusterParticles.geometry.attributes.position.needsUpdate = true;
         }

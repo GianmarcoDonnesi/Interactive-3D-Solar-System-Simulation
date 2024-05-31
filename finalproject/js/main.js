@@ -95,33 +95,33 @@ function init() {
             }
         });
         spaceship.scale.set(0.5, 0.5, 0.5); // Adjust the scale if necessary
-        spaceship.position.set(0, 50, -100); // Set initial position of the spaceship at the top
-        spaceship.rotation.x = Math.PI / 4; // Rotate the spaceship to face diagonally downward
+        spaceship.position.set(50, 50, -50); // Set initial position of the spaceship in the upper right corner
+        spaceship.lookAt(sun.position); // Point the spaceship toward the sun
         scene.add(spaceship);
         console.log('Spaceship added to the scene');
 
         // Initialize spaceship controls
         spaceshipControls = new SpaceshipControls(spaceship, 0.5);
 
+        // Create thruster particles
+        const particleGeometry = new THREE.BufferGeometry();
+        const particleCount = 1000;
+        const positions = new Float32Array(particleCount * 3);
+        for (let i = 0; i < particleCount; i++) {
+            positions[i * 3] = Math.random() * 2 - 1;
+            positions[i * 3 + 1] = Math.random() * 2 - 1;
+            positions[i * 3 + 2] = Math.random() * 2 - 1;
+        }
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particleMaterial = new THREE.PointsMaterial({ color: 0xff6600, size: 0.1, transparent: true, opacity: 0.7 });
+        thrusterParticles = new THREE.Points(particleGeometry, particleMaterial);
+        scene.add(thrusterParticles);
+
         // Start the animation loop with spaceship
         animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles);
     }, undefined, (error) => {
         console.error('Error loading spaceship model:', error);
     });
-
-    // Create thruster particles
-    const particleGeometry = new THREE.BufferGeometry();
-    const particleCount = 1000;
-    const positions = new Float32Array(particleCount * 3);
-    for (let i = 0; i < particleCount; i++) {
-        positions[i * 3] = Math.random() * 2 - 1;
-        positions[i * 3 + 1] = Math.random() * 2 - 1;
-        positions[i * 3 + 2] = Math.random() * 2 - 1;
-    }
-    particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const particleMaterial = new THREE.PointsMaterial({ color: 0xff6600, size: 0.1 });
-    thrusterParticles = new THREE.Points(particleGeometry, particleMaterial);
-    scene.add(thrusterParticles);
 
     // Handle rotation speed changes
     document.getElementById('rotationSpeed').addEventListener('input', (event) => {
