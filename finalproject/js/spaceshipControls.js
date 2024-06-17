@@ -1,3 +1,4 @@
+// spaceshipControls.js
 import { Vector3 } from 'https://cdn.skypack.dev/three@0.132.2';
 
 class SpaceshipControls {

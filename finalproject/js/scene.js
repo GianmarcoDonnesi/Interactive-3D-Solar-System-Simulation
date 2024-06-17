@@ -1,3 +1,4 @@
+// scene.js
 export function initScene(THREE) {
     const scene = new THREE.Scene();
     return scene;

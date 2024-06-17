@@ -1,24 +1,25 @@
+// animate.js
 export function animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles) {
+    const clock = new THREE.Clock();
     function render() {
         requestAnimationFrame(render);
-
-        // Smoothly transition speeds towards target values
-        const transitionSpeed = 0.02;
-        settings.currentRotationSpeed += (settings.targetRotationSpeed - settings.currentRotationSpeed) * transitionSpeed;
-        settings.currentOrbitSpeed += (settings.targetOrbitSpeed - settings.currentOrbitSpeed) * transitionSpeed;
+        const delta = clock.getDelta();
 
         // Rotate the sun
-        sun.rotation.y += settings.currentRotationSpeed;
+        sun.rotation.y += settings.rotationSpeed;
 
         // Orbit the planets around the sun
         const time = Date.now() * 0.001;
 
         planets.forEach((planet, index) => {
             const distance = planet.userData.distance;
-            const orbitSpeed = settings.currentOrbitSpeed * 0.1; // Adjust the scaling factor here
-            planet.position.x = distance * Math.cos(time * orbitSpeed * (1 + index));
-            planet.position.z = distance * Math.sin(time * orbitSpeed * (1 + index));
-            planet.rotation.y += settings.currentRotationSpeed;
+            const eccentricity = planet.userData.eccentricity;
+            const a = distance; // Semi-major axis
+            const b = distance * Math.sqrt(1 - eccentricity ** 2); // Semi-minor axis
+            const orbitSpeed = settings.orbitSpeed * 0.1; // Adjust the scaling factor here
+            planet.position.x = a * Math.cos(time * orbitSpeed * (1 + index));
+            planet.position.z = b * Math.sin(time * orbitSpeed * (1 + index));
+            planet.rotation.y += settings.rotationSpeed;
         });
 
         // Update tooltip positions to face the camera
@@ -51,7 +52,7 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
 
         // Update spaceship controls if defined
         if (spaceshipControls) {
-            spaceshipControls.update();
+            spaceshipControls.update(delta);
         }
 
         renderer.render(scene, camera);

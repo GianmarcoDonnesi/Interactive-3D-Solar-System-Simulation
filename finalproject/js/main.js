@@ -1,3 +1,4 @@
+// main.js
 import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js';
 import { initScene, createRenderer, createCamera, createLight } from './scene.js';
@@ -8,22 +9,20 @@ import SpaceshipControls from './spaceshipControls.js';
 
 let scene, camera, renderer, sun, planets, light, asteroids, background, raycaster, mouse, spaceship, spaceshipControls, thrusterParticles;
 const planetData = [
-    { name: 'Mercury', distance: 2 },
-    { name: 'Venus', distance: 3 },
-    { name: 'Earth', distance: 4 },
-    { name: 'Mars', distance: 5 },
-    { name: 'Jupiter', distance: 7 },
-    { name: 'Saturn', distance: 9 },
-    { name: 'Uranus', distance: 11 },
-    { name: 'Neptune', distance: 13 },
-    { name: 'Pluto', distance: 15 }
+    { name: 'Mercury', distance: 2, eccentricity: 0.205 },
+    { name: 'Venus', distance: 3, eccentricity: 0.0067 },
+    { name: 'Earth', distance: 4, eccentricity: 0.0167 },
+    { name: 'Mars', distance: 5, eccentricity: 0.0934 },
+    { name: 'Jupiter', distance: 7, eccentricity: 0.0489 },
+    { name: 'Saturn', distance: 9, eccentricity: 0.0565 },
+    { name: 'Uranus', distance: 11, eccentricity: 0.0463 },
+    { name: 'Neptune', distance: 13, eccentricity: 0.0097 },
+    { name: 'Pluto', distance: 15, eccentricity: 0.2488 }
 ];
 
 const settings = {
-    currentRotationSpeed: 0.01,
-    targetRotationSpeed: 0.01,
-    currentOrbitSpeed: 0.001,
-    targetOrbitSpeed: 0.001
+    rotationSpeed: 0.01,
+    orbitSpeed: 0.001
 };
 
 function init() {
@@ -55,7 +54,7 @@ function init() {
     });
 
     // Add orbits to the scene
-    const orbits = createOrbits(THREE, planetData.map(data => data.distance));
+    const orbits = createOrbits(THREE, planetData);
     orbits.forEach(orbit => scene.add(orbit));
 
     // Add asteroids to the scene
@@ -121,16 +120,6 @@ function init() {
         animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles);
     }, undefined, (error) => {
         console.error('Error loading spaceship model:', error);
-    });
-
-    // Handle rotation speed changes
-    document.getElementById('rotationSpeed').addEventListener('input', (event) => {
-        settings.targetRotationSpeed = parseFloat(event.target.value);
-    });
-
-    // Handle orbit speed changes
-    document.getElementById('orbitSpeed').addEventListener('input', (event) => {
-        settings.targetOrbitSpeed = parseFloat(event.target.value);
     });
 
     // Add event listeners for tooltip

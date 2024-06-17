@@ -1,3 +1,4 @@
+// objects.js
 export function createSun(THREE, textureLoader) {
     const geometry = new THREE.SphereGeometry(1, 32, 32);
     const texture = textureLoader.load('textures/sun.jpg');
@@ -52,7 +53,7 @@ export function createPlanets(THREE, textureLoader) {
     const mars = createPlanet(THREE, 0.55, 'textures/mars.jpg', 5, textureLoader, false);
     planets.push(mars);
 
-    const jupiter = createPlanet(THREE, 1.1, 'textures/jupiter.jpg',7, textureLoader, false);
+    const jupiter = createPlanet(THREE, 1.1, 'textures/jupiter.jpg', 7, textureLoader, false);
     planets.push(jupiter);
 
     const saturn = createPlanet(THREE, 1, 'textures/saturn.jpg', 9, textureLoader, true);
@@ -89,20 +90,22 @@ export function createAsteroids(THREE, textureLoader) {
     return asteroids;
 }
 
-export function createOrbits(THREE, planetDistances) {
+export function createOrbits(THREE, planetData) {
     const orbits = [];
-    const orbitMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff }); // Blue color
+    const orbitMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff, linewidth: 1 }); // Thinner line
 
-    planetDistances.forEach(distance => {
+    planetData.forEach(data => {
         const orbitGeometry = new THREE.BufferGeometry();
         const points = [];
 
         for (let j = 0; j <= 64; j++) {
             const theta = (j / 64) * Math.PI * 2;
+            const a = data.distance; // Semi-major axis
+            const b = data.distance * Math.sqrt(1 - data.eccentricity ** 2); // Semi-minor axis
             points.push(
-                distance * Math.cos(theta),
+                a * Math.cos(theta),
                 0,
-                distance * Math.sin(theta)
+                b * Math.sin(theta)
             );
         }
 
