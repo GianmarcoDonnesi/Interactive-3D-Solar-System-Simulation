@@ -2,7 +2,7 @@
 export function createSun(THREE, textureLoader) {
     const geometry = new THREE.SphereGeometry(1, 32, 32);
     const texture = textureLoader.load('textures/sun.jpg');
-    const material = new THREE.MeshBasicMaterial({ map: texture });
+    const material = new THREE.MeshStandardMaterial({ map: texture, emissive: 0xffff00, emissiveIntensity: 1 });
     const sun = new THREE.Mesh(geometry, material);
     return sun;
 }
@@ -10,9 +10,11 @@ export function createSun(THREE, textureLoader) {
 export function createPlanet(THREE, size, texturePath, distance, textureLoader, hasRings) {
     const geometry = new THREE.SphereGeometry(size, 32, 32);
     const texture = textureLoader.load(texturePath);
-    const material = new THREE.MeshBasicMaterial({ map: texture });
+    const material = new THREE.MeshStandardMaterial({ map: texture });
     const planet = new THREE.Mesh(geometry, material);
     planet.position.x = distance;
+    planet.castShadow = true; // Planet casts shadow
+    planet.receiveShadow = true; // Planet receives shadow
 
     if (hasRings) {
         const rings = createRings(THREE, textureLoader);
@@ -25,7 +27,7 @@ export function createPlanet(THREE, size, texturePath, distance, textureLoader, 
 export function createRings(THREE, textureLoader) {
     const ringGeometry = new THREE.RingGeometry(1.2, 2, 64);
     const ringTexture = textureLoader.load('textures/saturn_ring.png');
-    const ringMaterial = new THREE.MeshBasicMaterial({
+    const ringMaterial = new THREE.MeshStandardMaterial({
         map: ringTexture,
         side: THREE.DoubleSide,
         transparent: true,
@@ -75,7 +77,7 @@ export function createAsteroids(THREE, textureLoader) {
     const asteroids = [];
     const asteroidGeometry = new THREE.SphereGeometry(0.1, 16, 16);
     const asteroidTexture = textureLoader.load('textures/asteroid.jpg');
-    const asteroidMaterial = new THREE.MeshBasicMaterial({ map: asteroidTexture });
+    const asteroidMaterial = new THREE.MeshStandardMaterial({ map: asteroidTexture });
 
     for (let i = 0; i < 100; i++) {
         const asteroid = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
@@ -84,6 +86,8 @@ export function createAsteroids(THREE, textureLoader) {
             Math.random() * 20 - 10,
             Math.random() * 20 - 10
         );
+        asteroid.castShadow = true; // Asteroid casts shadow
+        asteroid.receiveShadow = true; // Asteroid receives shadow
         asteroids.push(asteroid);
     }
 
@@ -92,16 +96,17 @@ export function createAsteroids(THREE, textureLoader) {
 
 export function createOrbits(THREE, planetData) {
     const orbits = [];
-    const orbitMaterial = new THREE.LineBasicMaterial({ color: 0x0000ff, linewidth: 1 }); // Thinner line
+    const orbitMaterial = new THREE.LineBasicMaterial({ color: 0x8888ff, linewidth: 0.1, transparent: true, opacity: 0.3 }); // Lighter and less visible
 
     planetData.forEach(data => {
         const orbitGeometry = new THREE.BufferGeometry();
         const points = [];
 
+        const a = data.distance; // Semi-major axis
+        const b = a * Math.sqrt(1 - data.eccentricity ** 2); // Semi-minor axis
+
         for (let j = 0; j <= 64; j++) {
             const theta = (j / 64) * Math.PI * 2;
-            const a = data.distance; // Semi-major axis
-            const b = data.distance * Math.sqrt(1 - data.eccentricity ** 2); // Semi-minor axis
             points.push(
                 a * Math.cos(theta),
                 0,

@@ -1,5 +1,5 @@
 // animate.js
-export function animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles) {
+export function animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles, controls, selectedPlanet) {
     const clock = new THREE.Clock();
     function render() {
         requestAnimationFrame(render);
@@ -16,11 +16,22 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
             const eccentricity = planet.userData.eccentricity;
             const a = distance; // Semi-major axis
             const b = distance * Math.sqrt(1 - eccentricity ** 2); // Semi-minor axis
-            const orbitSpeed = settings.orbitSpeed * 0.1; // Adjust the scaling factor here
-            planet.position.x = a * Math.cos(time * orbitSpeed * (1 + index));
-            planet.position.z = b * Math.sin(time * orbitSpeed * (1 + index));
+            const orbitSpeed = settings.orbitSpeed; // Adjust the scaling factor here
+            const angle = time * orbitSpeed * (1 + index);
+            planet.position.x = a * Math.cos(angle);
+            planet.position.z = b * Math.sin(angle);
             planet.rotation.y += settings.rotationSpeed;
         });
+
+        // Update camera position to follow the selected planet
+        if (selectedPlanet) {
+            camera.position.set(
+                selectedPlanet.position.x + 5,
+                selectedPlanet.position.y + 5,
+                selectedPlanet.position.z + 5
+            );
+            camera.lookAt(selectedPlanet.position);
+        }
 
         // Update tooltip positions to face the camera
         const tooltip = document.getElementById('tooltip');

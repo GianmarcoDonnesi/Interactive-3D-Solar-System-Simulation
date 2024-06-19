@@ -7,7 +7,8 @@ import { addControls } from './controls.js';
 import { animate } from './animate.js';
 import SpaceshipControls from './spaceshipControls.js';
 
-let scene, camera, renderer, sun, planets, light, asteroids, background, raycaster, mouse, spaceship, spaceshipControls, thrusterParticles;
+let scene, camera, renderer, sun, planets, light, asteroids, background, raycaster, mouse, spaceship, spaceshipControls, thrusterParticles, controls;
+let selectedPlanet = null;
 const planetData = [
     { name: 'Mercury', distance: 2, eccentricity: 0.205 },
     { name: 'Venus', distance: 3, eccentricity: 0.0067 },
@@ -21,15 +22,15 @@ const planetData = [
 ];
 
 const settings = {
-    rotationSpeed: 0.01,
-    orbitSpeed: 0.001
+    rotationSpeed: 0.005,
+    orbitSpeed: 0.006
 };
 
 function init() {
     scene = initScene(THREE);
     renderer = createRenderer(THREE);
     camera = createCamera(THREE);
-    camera.position.set(0, 50, 150); // Adjust camera position to ensure it can see the spaceship
+    camera.position.set(0, 50, 110); // Adjust camera position to ensure it can see the spaceship
     camera.lookAt(0, 0, 0);
 
     document.body.appendChild(renderer.domElement);
@@ -70,7 +71,7 @@ function init() {
     scene.add(ambientLight);
 
     // Add controls
-    addControls(THREE, camera, renderer);
+    controls = addControls(THREE, camera, renderer);
 
     // Add background
     const starTexture = textureLoader.load('textures/starfield1.jpg');
@@ -117,14 +118,15 @@ function init() {
         scene.add(thrusterParticles);
 
         // Start the animation loop with spaceship
-        animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles);
+        animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles, controls, selectedPlanet);
     }, undefined, (error) => {
         console.error('Error loading spaceship model:', error);
     });
 
-    // Add event listeners for tooltip
+    // Add event listeners for tooltip and click events
     window.addEventListener('mousemove', onMouseMove, false);
     window.addEventListener('click', onClick, false);
+    window.addEventListener('keydown', onKeyDown, false);
 }
 
 function onMouseMove(event) {
@@ -139,12 +141,32 @@ function onClick(event) {
 
     if (intersects.length > 0) {
         const planet = intersects[0].object;
+        selectedPlanet = planet;
+
+        // Update tooltip position and content
         const tooltip = document.getElementById('tooltip');
         tooltip.innerHTML = `${planet.userData.name}<br>Distance: ${planet.userData.distance} AU`;
         tooltip.style.left = `${event.clientX + 5}px`;
         tooltip.style.top = `${event.clientY + 5}px`;
         tooltip.style.display = 'block';
+
+        // Lock camera on selected planet
+        camera.position.set(planet.position.x + 5, planet.position.y + 5, planet.position.z + 5);
+        camera.lookAt(planet.position);
+        controls.enabled = false;
     } else {
+        const tooltip = document.getElementById('tooltip');
+        tooltip.style.display = 'none';
+    }
+}
+
+function onKeyDown(event) {
+    if (event.key === 'Escape' && selectedPlanet) {
+        selectedPlanet = null;
+        camera.position.set(0, 50, 110);
+        camera.lookAt(0, 0, 0);
+        controls.enabled = true;
+
         const tooltip = document.getElementById('tooltip');
         tooltip.style.display = 'none';
     }
