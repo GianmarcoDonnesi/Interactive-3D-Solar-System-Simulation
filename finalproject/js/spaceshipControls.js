@@ -41,8 +41,8 @@ class SpaceshipControls {
     }
   }
 
-  update() {
-    this.spaceship.position.addScaledVector(this.direction, this.speed);
+  update(delta) {
+    this.spaceship.position.addScaledVector(this.direction, this.speed * delta);
   }
 }
 
