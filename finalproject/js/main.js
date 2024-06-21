@@ -1,13 +1,13 @@
 // main.js
 import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js';
-import { initScene, createRenderer, createCamera, createLight } from './scene.js';
+import { initScene, createRenderer, createCamera, createLight, createSunLight } from './scene.js';
 import { createSun, createPlanets, createAsteroids, createOrbits } from './objects.js';
 import { addControls } from './controls.js';
 import { animate } from './animate.js';
 import SpaceshipControls from './spaceshipControls.js';
 
-let scene, camera, renderer, sun, planets, light, asteroids, background, raycaster, mouse, spaceship, spaceshipControls, thrusterParticles, controls;
+let scene, camera, renderer, sun, planets, sunLight, asteroids, background, raycaster, mouse, spaceship, spaceshipControls, thrusterParticles, controls;
 let selectedPlanet = null;
 const planetData = [
     { name: 'Mercury', distance: 2, eccentricity: 0.205 },
@@ -22,7 +22,7 @@ const planetData = [
 ];
 
 const settings = {
-    rotationSpeed: 0.005,
+    rotationSpeed: 0.002,
     orbitSpeed: 0.006
 };
 
@@ -41,9 +41,20 @@ function init() {
     const textureLoader = new THREE.TextureLoader();
 
     // Add the sun to the scene
-    sun = createSun(THREE, textureLoader);
+    sun = createSun(THREE, textureLoader); // Pass the texture loader to createSun
     sun.castShadow = true; // Enable shadows for the sun
     scene.add(sun);
+
+    // Add Sun's PointLight to the scene
+    sunLight = createSunLight(THREE);
+    scene.add(sunLight);
+
+    // Debugging: Add light helper
+    const pointLightHelper = new THREE.PointLightHelper(sunLight, 1);
+    scene.add(pointLightHelper);
+
+    // Debugging: Log sunLight properties
+    console.log('SunLight Properties:', sunLight);
 
     // Add planets to the scene
     planets = createPlanets(THREE, textureLoader);
@@ -52,6 +63,9 @@ function init() {
         planet.receiveShadow = true;
         planet.userData = planetData[index]; // Store planet data
         scene.add(planet);
+
+        // Debugging: Log planet properties
+        console.log(`Planet ${planet.userData.name} Properties:`, planet);
     });
 
     // Add orbits to the scene
@@ -62,12 +76,8 @@ function init() {
     asteroids = createAsteroids(THREE, textureLoader);
     asteroids.forEach(asteroid => scene.add(asteroid));
 
-    // Add light to the scene
-    light = createLight(THREE);
-    scene.add(light);
-
     // Add additional ambient light
-    const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft white light
+    const ambientLight = new THREE.AmbientLight(0x404040, 1); // Reduce ambient light intensity to 1
     scene.add(ambientLight);
 
     // Add controls

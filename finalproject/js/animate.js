@@ -1,6 +1,36 @@
 // animate.js
 export function animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles, controls, selectedPlanet) {
     const clock = new THREE.Clock();
+
+    // Ensure the time uniform is added only once
+    sun.material.onBeforeCompile = (shader) => {
+        if (!shader.uniforms.time) {
+            shader.uniforms.time = { value: 0 };
+
+            shader.vertexShader = `
+                uniform float time;
+                ${shader.vertexShader}
+            `.replace(
+                `#include <begin_vertex>`,
+                `#include <begin_vertex>
+                transformed.x += 0.5 * sin(time + position.y);
+                transformed.y += 0.5 * cos(time + position.x);
+                transformed.z += 0.5 * sin(time + position.z);
+                `
+            );
+
+            shader.fragmentShader = `
+                uniform float time;
+                ${shader.fragmentShader}
+            `.replace(
+                `gl_FragColor = vec4( outgoingLight, diffuseColor.a );`,
+                `gl_FragColor = vec4( outgoingLight * (1.0 + 0.5 * sin(time)), diffuseColor.a );`
+            );
+
+            sun.material.userData.shader = shader;  // Store the shader for later use
+        }
+    };
+
     function render() {
         requestAnimationFrame(render);
         const delta = clock.getDelta();
@@ -8,9 +38,16 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
         // Rotate the sun
         sun.rotation.y += settings.rotationSpeed;
 
+        // Add pulsation effect to the sun
+        sun.material.emissiveIntensity = 1.5 + Math.sin(Date.now() * 0.005) * 0.5;
+
+        // Update time uniform
+        if (sun.material.userData.shader) {
+            sun.material.userData.shader.uniforms.time.value += delta;
+        }
+
         // Orbit the planets around the sun
         const time = Date.now() * 0.001;
-
         planets.forEach((planet, index) => {
             const distance = planet.userData.distance;
             const eccentricity = planet.userData.eccentricity;
@@ -21,6 +58,13 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
             planet.position.x = a * Math.cos(angle);
             planet.position.z = b * Math.sin(angle);
             planet.rotation.y += settings.rotationSpeed;
+
+            // Adjust light intensity based on distance
+            const lightIntensity = Math.min(5, Math.max(0.3, 100 / (distance * distance))); // Adjusted calculation
+            planet.material.emissiveIntensity = lightIntensity;
+
+            // Debugging: Log planet light intensity
+            console.log(`Planet ${planet.userData.name} Light Intensity:`, lightIntensity);
         });
 
         // Update camera position to follow the selected planet
@@ -41,32 +85,27 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
                 const vector = new THREE.Vector3();
                 planet.getWorldPosition(vector);
                 vector.project(camera);
-                tooltip.style.left = `${(vector.x + 1) * window.innerWidth / 2 + 5}px`;
-                tooltip.style.top = `${(-vector.y + 1) * window.innerHeight / 2 + 5}px`;
+
+                const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+
+                tooltip.style.left = `${x}px`;
+                tooltip.style.top = `${y}px`;
             }
         }
 
-        // Move the spaceship towards the sun
-        if (spaceship) {
-            spaceship.position.x -= 0.05; // Move left
-            spaceship.position.y -= 0.05; // Move down
-
-            // Update thruster particles position to follow the spaceship
-            const positions = thrusterParticles.geometry.attributes.position.array;
-            for (let i = 0; i < positions.length; i += 3) {
-                positions[i] = spaceship.position.x + (Math.random() * 2 - 1) * 0.5;
-                positions[i + 1] = spaceship.position.y + (Math.random() * 2 - 1) * 0.5;
-                positions[i + 2] = spaceship.position.z + (Math.random() * 2 - 1) * 0.5;
-            }
-            thrusterParticles.geometry.attributes.position.needsUpdate = true;
+        // Update thruster particles position
+        if (thrusterParticles) {
+            thrusterParticles.position.copy(spaceship.position);
         }
 
-        // Update spaceship controls if defined
-        if (spaceshipControls) {
-            spaceshipControls.update(delta);
-        }
+        // Update spaceship controls
+        spaceshipControls.update(delta);
 
+        // Render the scene
         renderer.render(scene, camera);
     }
     render();
 }
+
+

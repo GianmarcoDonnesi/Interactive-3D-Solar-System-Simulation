@@ -1,16 +1,52 @@
 // objects.js
 export function createSun(THREE, textureLoader) {
     const geometry = new THREE.SphereGeometry(1, 32, 32);
-    const texture = textureLoader.load('textures/sun.jpg');
-    const material = new THREE.MeshStandardMaterial({ map: texture, emissive: 0xffff00, emissiveIntensity: 1 });
+    const texture = textureLoader.load('textures/sun.jpg'); // Ensure you have a sun texture in the path
+
+    const material = new THREE.ShaderMaterial({
+        uniforms: {
+            time: { value: 0 },
+            sunTexture: { value: texture }
+        },
+        vertexShader: `
+            uniform float time;
+            varying vec2 vUv;
+            varying vec3 vNormal;
+            void main() {
+                vUv = uv;
+                vNormal = normal;
+                vec3 transformed = position.xyz;
+                float displacement = 0.05 * sin(time + length(position));
+                transformed = normalize(transformed) * (1.0 + displacement);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
+            }
+        `,
+        fragmentShader: `
+            uniform float time;
+            uniform sampler2D sunTexture;
+            varying vec2 vUv;
+            varying vec3 vNormal;
+            void main() {
+                vec3 outgoingLight = texture2D(sunTexture, vUv).rgb * (1.0 + 0.5 * sin(time));
+                gl_FragColor = vec4(outgoingLight, 1.0);
+            }
+        `
+    });
+
     const sun = new THREE.Mesh(geometry, material);
+    sun.castShadow = true;
+    sun.receiveShadow = true;
     return sun;
 }
 
 export function createPlanet(THREE, size, texturePath, distance, textureLoader, hasRings) {
     const geometry = new THREE.SphereGeometry(size, 32, 32);
     const texture = textureLoader.load(texturePath);
-    const material = new THREE.MeshStandardMaterial({ map: texture });
+    const material = new THREE.MeshStandardMaterial({
+        map: texture,
+        roughness: 0.5, // Adjust roughness for better light reflection
+        metalness: 0.0, // Planets are not metallic
+    });
     const planet = new THREE.Mesh(geometry, material);
     planet.position.x = distance;
     planet.castShadow = true; // Planet casts shadow
