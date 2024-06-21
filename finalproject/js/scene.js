@@ -29,10 +29,12 @@ export function createSunLight(THREE) {
     const sunLight = new THREE.PointLight(0xffffff, 100, 1000); // Increased intensity to 50
     sunLight.position.set(0, 0, 0);
     sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 2048; // Shadow quality
-    sunLight.shadow.mapSize.height = 2048; // Shadow quality
-    sunLight.shadow.camera.near = 0.1;
-    sunLight.shadow.camera.far = 10000;
+    sunLight.shadow.mapSize.width = 4096; // Shadow quality
+    sunLight.shadow.mapSize.height = 4096; // Shadow quality
+    sunLight.shadow.camera.near = 0.5;
+    sunLight.shadow.camera.far = 10000; // Ensure this is enough to cover the scene
+    sunLight.shadow.bias = -0.0001;
+    sunLight.shadow.focus = 1;
     sunLight.decay = 2; // Light decay over distance
     return sunLight;
 }

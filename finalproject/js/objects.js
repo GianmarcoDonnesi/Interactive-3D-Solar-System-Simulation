@@ -38,8 +38,8 @@ export function createSun(THREE, textureLoader) {
 
             void main() {
                 vec3 texColor = texture2D(sunTexture, vUv).rgb;
-                float noiseValue = noise(vPosition * noiseFrequency + time * 0.5); // Adjusted noise frequency
-                float intensity = 0.5 + 0.5 * noiseValue * noiseAmplitude; // Adjusted noise amplitude
+                float noiseValue = noise(vPosition * noiseFrequency + time * 0.5);
+                float intensity = 0.5 + 0.5 * noiseValue * noiseAmplitude;
                 vec3 color = mix(vec3(1.0, 0.3, 0.0), vec3(1.0, 1.0, 0.0), intensity);
                 gl_FragColor = vec4(texColor * color, 1.0);
             }
@@ -48,7 +48,7 @@ export function createSun(THREE, textureLoader) {
 
 
     const sun = new THREE.Mesh(geometry, material);
-    sun.castShadow = true;
+    sun.castShadow = true; // Enable casting shadows for the sun itself
     sun.receiveShadow = true;
 
     // Add PointLight to the sun
