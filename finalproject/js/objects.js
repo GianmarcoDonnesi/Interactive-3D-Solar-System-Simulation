@@ -1,41 +1,60 @@
 // objects.js
 export function createSun(THREE, textureLoader) {
     const geometry = new THREE.SphereGeometry(1, 32, 32);
-    const texture = textureLoader.load('textures/sun.jpg'); // Ensure you have a sun texture in the path
+    const texture = textureLoader.load('textures/sun.jpg');
 
     const material = new THREE.ShaderMaterial({
         uniforms: {
             time: { value: 0 },
-            sunTexture: { value: texture }
+            sunTexture: { value: texture },
+            noiseFrequency: { value: 1.5 }, // Added uniform for noise frequency
+            noiseAmplitude: { value: 0.5 }  // Added uniform for noise amplitude
         },
         vertexShader: `
-            uniform float time;
             varying vec2 vUv;
             varying vec3 vNormal;
+            varying vec3 vPosition;
+
             void main() {
                 vUv = uv;
                 vNormal = normal;
-                vec3 transformed = position.xyz;
-                float displacement = 0.05 * sin(time + length(position));
-                transformed = normalize(transformed) * (1.0 + displacement);
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);
+                vPosition = position;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             }
         `,
         fragmentShader: `
             uniform float time;
             uniform sampler2D sunTexture;
+            uniform float noiseFrequency;
+            uniform float noiseAmplitude;
             varying vec2 vUv;
             varying vec3 vNormal;
+            varying vec3 vPosition;
+
+            // Simple noise function
+            float noise(vec3 p) {
+                return sin(p.x + p.y + p.z + time);
+            }
+
             void main() {
-                vec3 outgoingLight = texture2D(sunTexture, vUv).rgb * (1.0 + 0.5 * sin(time));
-                gl_FragColor = vec4(outgoingLight, 1.0);
+                vec3 texColor = texture2D(sunTexture, vUv).rgb;
+                float noiseValue = noise(vPosition * noiseFrequency + time * 0.5); // Adjusted noise frequency
+                float intensity = 0.5 + 0.5 * noiseValue * noiseAmplitude; // Adjusted noise amplitude
+                vec3 color = mix(vec3(1.0, 0.3, 0.0), vec3(1.0, 1.0, 0.0), intensity);
+                gl_FragColor = vec4(texColor * color, 1.0);
             }
         `
     });
 
+
     const sun = new THREE.Mesh(geometry, material);
     sun.castShadow = true;
     sun.receiveShadow = true;
+
+    // Add PointLight to the sun
+    const pointLight = new THREE.PointLight(0xffffff, 12, 300, 1);
+    sun.add(pointLight);
+
     return sun;
 }
 
@@ -44,13 +63,13 @@ export function createPlanet(THREE, size, texturePath, distance, textureLoader, 
     const texture = textureLoader.load(texturePath);
     const material = new THREE.MeshStandardMaterial({
         map: texture,
-        roughness: 0.5, // Adjust roughness for better light reflection
-        metalness: 0.0, // Planets are not metallic
+        roughness: 0.3, // Adjust roughness for better light reflection
+        metalness: 0.1, // Slight metalness for shinier appearance
     });
     const planet = new THREE.Mesh(geometry, material);
     planet.position.x = distance;
-    planet.castShadow = true; // Planet casts shadow
-    planet.receiveShadow = true; // Planet receives shadow
+    planet.castShadow = true;
+    planet.receiveShadow = true;
 
     if (hasRings) {
         const rings = createRings(THREE, textureLoader);

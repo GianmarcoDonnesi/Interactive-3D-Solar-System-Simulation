@@ -10,27 +10,27 @@ import SpaceshipControls from './spaceshipControls.js';
 let scene, camera, renderer, sun, planets, sunLight, asteroids, background, raycaster, mouse, spaceship, spaceshipControls, thrusterParticles, controls;
 let selectedPlanet = null;
 const planetData = [
-    { name: 'Mercury', distance: 2, eccentricity: 0.205 },
-    { name: 'Venus', distance: 3, eccentricity: 0.0067 },
-    { name: 'Earth', distance: 4, eccentricity: 0.0167 },
-    { name: 'Mars', distance: 5, eccentricity: 0.0934 },
-    { name: 'Jupiter', distance: 7, eccentricity: 0.0489 },
-    { name: 'Saturn', distance: 9, eccentricity: 0.0565 },
-    { name: 'Uranus', distance: 11, eccentricity: 0.0463 },
-    { name: 'Neptune', distance: 13, eccentricity: 0.0097 },
-    { name: 'Pluto', distance: 15, eccentricity: 0.2488 }
+    { name: 'Mercury', distance: 2, eccentricity: 0.205, revolutionTime: 0.241, temperature: 167 },
+    { name: 'Venus', distance: 3, eccentricity: 0.0067, revolutionTime: 0.615, temperature: 464 },
+    { name: 'Earth', distance: 4, eccentricity: 0.0167, revolutionTime: 1, temperature: 15/20 },
+    { name: 'Mars', distance: 5, eccentricity: 0.0934, revolutionTime: 1.881, temperature: -87 },
+    { name: 'Jupiter', distance: 7, eccentricity: 0.0489, revolutionTime: 11.87, temperature: -121 },
+    { name: 'Saturn', distance: 9, eccentricity: 0.0565, revolutionTime: 29.45, temperature: -130 },
+    { name: 'Uranus', distance: 11, eccentricity: 0.0463, revolutionTime: 84.07, temperature: -205 },
+    { name: 'Neptune', distance: 13, eccentricity: 0.0097, revolutionTime: 164.9, temperature: -220 },
+    { name: 'Pluto', distance: 15, eccentricity: 0.2488, revolutionTime: 248.1, temperature: -225 }
 ];
 
 const settings = {
-    rotationSpeed: 0.002,
-    orbitSpeed: 0.006
+    rotationSpeed: 0.0008,
+    orbitSpeed: 0.0023
 };
 
 function init() {
     scene = initScene(THREE);
     renderer = createRenderer(THREE);
     camera = createCamera(THREE);
-    camera.position.set(0, 50, 110); // Adjust camera position to ensure it can see the spaceship
+    camera.position.set(0, 50, 110);
     camera.lookAt(0, 0, 0);
 
     document.body.appendChild(renderer.domElement);
@@ -41,31 +41,30 @@ function init() {
     const textureLoader = new THREE.TextureLoader();
 
     // Add the sun to the scene
-    sun = createSun(THREE, textureLoader); // Pass the texture loader to createSun
-    sun.castShadow = true; // Enable shadows for the sun
+    sun = createSun(THREE, textureLoader);
+    sun.castShadow = true;
     scene.add(sun);
 
     // Add Sun's PointLight to the scene
     sunLight = createSunLight(THREE);
-    scene.add(sunLight);
+    sun.add(sunLight); // Add the light to the sun object
 
-    // Debugging: Add light helper
-    const pointLightHelper = new THREE.PointLightHelper(sunLight, 1);
-    scene.add(pointLightHelper);
-
-    // Debugging: Log sunLight properties
-    console.log('SunLight Properties:', sunLight);
+    // Adjust sunLight properties for better illumination
+    sunLight.intensity = 2; // Increase intensity
+    sunLight.distance = 100; // Increase the range to cover all planets
+    sunLight.decay = 2; // Ensure light decays realistically over distance
 
     // Add planets to the scene
     planets = createPlanets(THREE, textureLoader);
     planets.forEach((planet, index) => {
-        planet.castShadow = true; // Enable shadows for the planets
+        planet.castShadow = true;
         planet.receiveShadow = true;
-        planet.userData = planetData[index]; // Store planet data
+        planet.userData = planetData[index];
         scene.add(planet);
 
-        // Debugging: Log planet properties
-        console.log(`Planet ${planet.userData.name} Properties:`, planet);
+        // Adjust planet material properties for better reflection
+        planet.material.roughness = 0.9; // Less roughness for more reflection
+        planet.material.metalness = 0.0; // Slight metalness for shinier appearance
     });
 
     // Add orbits to the scene
@@ -76,8 +75,8 @@ function init() {
     asteroids = createAsteroids(THREE, textureLoader);
     asteroids.forEach(asteroid => scene.add(asteroid));
 
-    // Add additional ambient light
-    const ambientLight = new THREE.AmbientLight(0x404040, 1); // Reduce ambient light intensity to 1
+    // Add ambient light
+    const ambientLight = new THREE.AmbientLight(0x404040, 3.2); // Reduce ambient light intensity
     scene.add(ambientLight);
 
     // Add controls
@@ -96,7 +95,6 @@ function init() {
     // Load the spaceship model
     const loader = new GLTFLoader();
     loader.load('models/spaceship.glb', (gltf) => {
-        console.log('Spaceship model loaded successfully');
         spaceship = gltf.scene;
         spaceship.traverse((child) => {
             if (child.isMesh) {
@@ -104,11 +102,10 @@ function init() {
                 child.receiveShadow = true;
             }
         });
-        spaceship.scale.set(0.5, 0.5, 0.5); // Adjust the scale if necessary
-        spaceship.position.set(50, 50, -50); // Set initial position of the spaceship in the upper right corner
-        spaceship.lookAt(sun.position); // Point the spaceship toward the sun
+        spaceship.scale.set(0.5, 0.5, 0.5);
+        spaceship.position.set(50, 50, -50);
+        spaceship.lookAt(sun.position);
         scene.add(spaceship);
-        console.log('Spaceship added to the scene');
 
         // Initialize spaceship controls
         spaceshipControls = new SpaceshipControls(spaceship, 0.5);
@@ -155,10 +152,15 @@ function onClick(event) {
 
         // Update tooltip position and content
         const tooltip = document.getElementById('tooltip');
-        tooltip.innerHTML = `${planet.userData.name}<br>Distance: ${planet.userData.distance} AU`;
-        tooltip.style.left = `${event.clientX + 5}px`;
-        tooltip.style.top = `${event.clientY + 5}px`;
+        tooltip.innerHTML = `
+            <strong>${planet.userData.name}</strong><br>
+            Distance: ${planet.userData.distance} AU<br>
+            Revolution Time: ${planet.userData.revolutionTime} years<br>
+            Surface temperature: ${planet.userData.temperature} °C
+        `;
         tooltip.style.display = 'block';
+        tooltip.style.position = 'absolute';
+        tooltip.style.pointerEvents = 'none';
 
         // Lock camera on selected planet
         camera.position.set(planet.position.x + 5, planet.position.y + 5, planet.position.z + 5);
