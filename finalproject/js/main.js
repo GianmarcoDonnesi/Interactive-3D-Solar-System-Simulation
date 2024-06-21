@@ -12,7 +12,7 @@ let selectedPlanet = null;
 const planetData = [
     { name: 'Mercury', distance: 2, eccentricity: 0.205, revolutionTime: 0.241, temperature: 167 },
     { name: 'Venus', distance: 3, eccentricity: 0.0067, revolutionTime: 0.615, temperature: 464 },
-    { name: 'Earth', distance: 4, eccentricity: 0.0167, revolutionTime: 1, temperature: 15/20 },
+    { name: 'Earth', distance: 4, eccentricity: 0.0167, revolutionTime: 1, temperature: 15 },
     { name: 'Mars', distance: 5, eccentricity: 0.0934, revolutionTime: 1.881, temperature: -87 },
     { name: 'Jupiter', distance: 7, eccentricity: 0.0489, revolutionTime: 11.87, temperature: -121 },
     { name: 'Saturn', distance: 9, eccentricity: 0.0565, revolutionTime: 29.45, temperature: -130 },
@@ -134,6 +134,9 @@ function init() {
     window.addEventListener('mousemove', onMouseMove, false);
     window.addEventListener('click', onClick, false);
     window.addEventListener('keydown', onKeyDown, false);
+
+    // Add event listener for window resize
+    window.addEventListener('resize', onWindowResize, false);
 }
 
 function onMouseMove(event) {
@@ -182,6 +185,12 @@ function onKeyDown(event) {
         const tooltip = document.getElementById('tooltip');
         tooltip.style.display = 'none';
     }
+}
+
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 init();

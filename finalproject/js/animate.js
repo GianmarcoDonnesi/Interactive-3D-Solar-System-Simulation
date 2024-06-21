@@ -62,36 +62,28 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
             // Adjust light intensity based on distance
             const lightIntensity = Math.min(5, Math.max(0.3, 100 / (distance * distance))); // Adjusted calculation
             planet.material.emissiveIntensity = lightIntensity;
-
-            // Debugging: Log planet light intensity
-            console.log(`Planet ${planet.userData.name} Light Intensity:`, lightIntensity);
         });
 
         // Update camera position to follow the selected planet
         if (selectedPlanet) {
-            camera.position.set(
-                selectedPlanet.position.x + 5,
-                selectedPlanet.position.y + 5,
-                selectedPlanet.position.z + 5
-            );
+            const offset = new THREE.Vector3(5, 5, 5); // Adjust the offset as needed
+            const targetPosition = selectedPlanet.position.clone().add(offset);
+            camera.position.lerp(targetPosition, 0.1); // Smoothly interpolate the camera position
             camera.lookAt(selectedPlanet.position);
         }
 
-        // Update tooltip positions to face the camera
+        // Update tooltip positions to follow the selected planet
         const tooltip = document.getElementById('tooltip');
-        if (tooltip && tooltip.style.display === 'block') {
-            const planet = planets.find(p => p.userData.name === tooltip.innerHTML.split('<br>')[0]);
-            if (planet) {
-                const vector = new THREE.Vector3();
-                planet.getWorldPosition(vector);
-                vector.project(camera);
+        if (tooltip && tooltip.style.display === 'block' && selectedPlanet) {
+            const vector = new THREE.Vector3();
+            selectedPlanet.getWorldPosition(vector);
+            vector.project(camera);
 
-                const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-                const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+            const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+            const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
 
-                tooltip.style.left = `${x}px`;
-                tooltip.style.top = `${y}px`;
-            }
+            tooltip.style.left = `${x}px`;
+            tooltip.style.top = `${y}px`;
         }
 
         // Update thruster particles position
@@ -107,5 +99,3 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
     }
     render();
 }
-
-
