@@ -1,5 +1,5 @@
 // animate.js
-export function animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles, controls, selectedPlanet) {
+export function animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles, controls, selectedPlanet, asteroids) {
     const clock = new THREE.Clock();
 
     // Ensure the time uniform is added only once
@@ -62,6 +62,24 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
             // Adjust light intensity based on distance
             const lightIntensity = Math.min(5, Math.max(0.3, 100 / (distance * distance))); // Adjusted calculation
             planet.material.emissiveIntensity = lightIntensity;
+
+            // Update the dynamic point light to point from the surface of the sun to the planet
+            const pointLight = planet.userData.pointLight;
+            if (pointLight) {
+                const direction = new THREE.Vector3();
+                direction.subVectors(planet.position, sun.position).normalize();
+                const lightPosition = direction.clone().multiplyScalar(1).add(sun.position);
+                pointLight.position.copy(lightPosition);
+                pointLight.target.position.copy(planet.position);
+            }
+
+            // Update arrow helper direction
+            const arrowHelper = planet.userData.arrowHelper;
+            if (arrowHelper) {
+                arrowHelper.position.copy(pointLight.position);
+                arrowHelper.setDirection(planet.position.clone().sub(pointLight.position).normalize());
+                arrowHelper.setLength(planet.position.distanceTo(pointLight.position));
+            }
         });
 
         // Update camera position to follow the selected planet
@@ -94,8 +112,20 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
         // Update spaceship controls
         spaceshipControls.update(delta);
 
+        // Move asteroids randomly
+        asteroids.forEach(asteroid => {
+            asteroid.position.x += (Math.random() - 0.5) * delta;
+            asteroid.position.y += (Math.random() - 0.5) * delta;
+            asteroid.position.z += (Math.random() - 0.5) * delta;
+            asteroid.rotation.x += (Math.random() - 0.5) * delta * 0.1;
+            asteroid.rotation.y += (Math.random() - 0.5) * delta * 0.1;
+            asteroid.rotation.z += (Math.random() - 0.5) * delta * 0.1;
+        });
+
         // Render the scene
         renderer.render(scene, camera);
     }
     render();
 }
+
+

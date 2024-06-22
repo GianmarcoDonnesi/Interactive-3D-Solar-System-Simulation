@@ -9,6 +9,7 @@ import SpaceshipControls from './spaceshipControls.js';
 
 let scene, camera, renderer, sun, planets, sunLight, asteroids, background, raycaster, mouse, spaceship, spaceshipControls, thrusterParticles, controls;
 let selectedPlanet = null;
+let showHelpers = true; // Variable to control the visibility of light helpers
 const planetData = [
     { name: 'Mercury', distance: 2, eccentricity: 0.205, revolutionTime: 0.241, temperature: 167 },
     { name: 'Venus', distance: 3, eccentricity: 0.0067, revolutionTime: 0.615, temperature: 464 },
@@ -45,14 +46,7 @@ function init() {
     sun.castShadow = true;
     scene.add(sun);
 
-    // Add Sun's PointLight to the scene
-    sunLight = createSunLight(THREE);
-    sun.add(sunLight); // Add the light to the sun object
-
-    // Adjust sunLight properties for better illumination
-    sunLight.intensity = 2; // Increase intensity
-    sunLight.distance = 100; // Increase the range to cover all planets
-    sunLight.decay = 2; // Ensure light decays realistically over distance
+    const sunRadius = 1; // Assuming the radius of the sun sphere is 1
 
     // Add planets to the scene
     planets = createPlanets(THREE, textureLoader);
@@ -63,8 +57,38 @@ function init() {
         scene.add(planet);
 
         // Adjust planet material properties for better reflection
-        planet.material.roughness = 0.9; // Less roughness for more reflection
+        planet.material.roughness = 1.0; // Less roughness for more reflection
         planet.material.metalness = 0.0; // Slight metalness for shinier appearance
+
+        // Calculate initial position for the point light on the surface of the sun
+        const direction = new THREE.Vector3();
+        direction.subVectors(planet.position, sun.position).normalize();
+        const lightPosition = direction.clone().multiplyScalar(sunRadius).add(sun.position);
+
+        // Add a dynamic point light for each planet
+        const pointLight = new THREE.PointLight(0xffffff, 2, 1000); // Adjusted intensity and distance
+        pointLight.castShadow = true;
+        pointLight.shadow.mapSize.width = 4096; // Increased shadow map size
+        pointLight.shadow.mapSize.height = 4096; // Increased shadow map size
+        pointLight.shadow.bias = -0.0001; // Adjusted bias
+        pointLight.position.copy(lightPosition);
+        scene.add(pointLight);
+        planet.userData.pointLight = pointLight;
+
+        // Create a target object for the point light and add it to the scene
+        const lightTarget = new THREE.Object3D();
+        scene.add(lightTarget);
+        pointLight.target = lightTarget;
+
+        // Add a helper to visualize the light
+        const lightHelper = new THREE.PointLightHelper(pointLight);
+        scene.add(lightHelper);
+
+        // Add an arrow helper to visualize the direction of the light
+        const arrowHelper = new THREE.ArrowHelper(direction, lightPosition, planet.userData.distance, 0xff0000);
+        scene.add(arrowHelper);
+        planet.userData.arrowHelper = arrowHelper;
+        planet.userData.lightHelper = lightHelper; // Store the light helper
     });
 
     // Add orbits to the scene
@@ -76,7 +100,7 @@ function init() {
     asteroids.forEach(asteroid => scene.add(asteroid));
 
     // Add ambient light
-    const ambientLight = new THREE.AmbientLight(0x404040, 3.2); // Reduce ambient light intensity
+    const ambientLight = new THREE.AmbientLight(0x404040, 2.5); // Reduce ambient light intensity
     scene.add(ambientLight);
 
     // Add controls
@@ -125,7 +149,7 @@ function init() {
         scene.add(thrusterParticles);
 
         // Start the animation loop with spaceship
-        animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles, controls, selectedPlanet);
+        animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles, controls, selectedPlanet, asteroids);
     }, undefined, (error) => {
         console.error('Error loading spaceship model:', error);
     });
@@ -137,6 +161,16 @@ function init() {
 
     // Add event listener for window resize
     window.addEventListener('resize', onWindowResize, false);
+
+    // Add event listener for toggling light helpers
+    const toggleButton = document.getElementById('toggleHelpers');
+    toggleButton.addEventListener('click', () => {
+        showHelpers = !showHelpers;
+        planets.forEach(planet => {
+            planet.userData.arrowHelper.visible = showHelpers;
+            planet.userData.lightHelper.visible = showHelpers;
+        });
+    });
 }
 
 function onMouseMove(event) {
@@ -194,3 +228,7 @@ function onWindowResize() {
 }
 
 init();
+
+
+
+

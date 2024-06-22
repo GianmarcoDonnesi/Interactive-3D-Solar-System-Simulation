@@ -7,8 +7,8 @@ export function createSun(THREE, textureLoader) {
         uniforms: {
             time: { value: 0 },
             sunTexture: { value: texture },
-            noiseFrequency: { value: 1.5 }, // Added uniform for noise frequency
-            noiseAmplitude: { value: 0.5 }  // Added uniform for noise amplitude
+            noiseFrequency: { value: 1.5 },
+            noiseAmplitude: { value: 0.5 }
         },
         vertexShader: `
             varying vec2 vUv;
@@ -31,7 +31,6 @@ export function createSun(THREE, textureLoader) {
             varying vec3 vNormal;
             varying vec3 vPosition;
 
-            // Simple noise function
             float noise(vec3 p) {
                 return sin(p.x + p.y + p.z + time);
             }
@@ -46,14 +45,9 @@ export function createSun(THREE, textureLoader) {
         `
     });
 
-
     const sun = new THREE.Mesh(geometry, material);
-    sun.castShadow = true; // Enable casting shadows for the sun itself
+    sun.castShadow = true;
     sun.receiveShadow = true;
-
-    // Add PointLight to the sun
-    const pointLight = new THREE.PointLight(0xffffff, 12, 300, 1);
-    sun.add(pointLight);
 
     return sun;
 }
@@ -63,7 +57,7 @@ export function createPlanet(THREE, size, texturePath, distance, textureLoader, 
     const texture = textureLoader.load(texturePath);
     const material = new THREE.MeshStandardMaterial({
         map: texture,
-        roughness: 0.3, // Adjust roughness for better light reflection
+        roughness: 0.9, // Adjust roughness for better light reflection
         metalness: 0.1, // Slight metalness for shinier appearance
     });
     const planet = new THREE.Mesh(geometry, material);
@@ -130,7 +124,7 @@ export function createPlanets(THREE, textureLoader) {
 
 export function createAsteroids(THREE, textureLoader) {
     const asteroids = [];
-    const asteroidGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+    const asteroidGeometry = new THREE.SphereGeometry(0.05, 16, 16); // Reduced size
     const asteroidTexture = textureLoader.load('textures/asteroid.jpg');
     const asteroidMaterial = new THREE.MeshStandardMaterial({ map: asteroidTexture });
 
@@ -176,3 +170,5 @@ export function createOrbits(THREE, planetData) {
 
     return orbits;
 }
+
+
