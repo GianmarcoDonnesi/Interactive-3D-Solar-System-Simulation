@@ -57,7 +57,7 @@ function init() {
         scene.add(planet);
 
         // Adjust planet material properties for better reflection
-        planet.material.roughness = 1.0; // Less roughness for more reflection
+        planet.material.roughness = 0.9; // Less roughness for more reflection
         planet.material.metalness = 0.0; // Slight metalness for shinier appearance
 
         // Calculate initial position for the point light on the surface of the sun
@@ -100,7 +100,7 @@ function init() {
     asteroids.forEach(asteroid => scene.add(asteroid));
 
     // Add ambient light
-    const ambientLight = new THREE.AmbientLight(0x404040, 2.5); // Reduce ambient light intensity
+    const ambientLight = new THREE.AmbientLight(0x404040, 2); // Reduce ambient light intensity
     scene.add(ambientLight);
 
     // Add controls
@@ -118,7 +118,7 @@ function init() {
 
     // Load the spaceship model
     const loader = new GLTFLoader();
-    loader.load('models/spaceship.glb', (gltf) => {
+    loader.load('models/ISS_stationary.glb', (gltf) => {
         spaceship = gltf.scene;
         spaceship.traverse((child) => {
             if (child.isMesh) {
