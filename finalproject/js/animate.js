@@ -1,5 +1,5 @@
 // animate.js
-export function animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles, controls, selectedPlanet, asteroids) {
+export function animate(THREE, renderer, scene, camera, sun, planets, settings, spacestation, spacestationControls, controls, selectedPlanet, asteroids) {
     const clock = new THREE.Clock();
 
     // Ensure the time uniform is added only once
@@ -88,35 +88,34 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
             const targetPosition = selectedPlanet.position.clone().add(offset);
             camera.position.lerp(targetPosition, 0.1); // Smoothly interpolate the camera position
             camera.lookAt(selectedPlanet.position);
+
+            // Update tooltip positions to follow the selected planet
+            const tooltip = document.getElementById('tooltip');
+            if (tooltip && tooltip.style.display === 'block') {
+                const vector = new THREE.Vector3();
+                selectedPlanet.getWorldPosition(vector);
+                vector.project(camera);
+
+                const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+                const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
+
+                tooltip.style.left = `${x}px`;
+                tooltip.style.top = `${y}px`;
+            }
         }
 
-        // Update tooltip positions to follow the selected planet
-        const tooltip = document.getElementById('tooltip');
-        if (tooltip && tooltip.style.display === 'block' && selectedPlanet) {
-            const vector = new THREE.Vector3();
-            selectedPlanet.getWorldPosition(vector);
-            vector.project(camera);
-
-            const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-            const y = (vector.y * -0.5 + 0.5) * window.innerHeight;
-
-            tooltip.style.left = `${x}px`;
-            tooltip.style.top = `${y}px`;
+        // Update spacestation controls
+        if (spacestationControls) {
+            spacestationControls.update(delta);
         }
-
-        // Update thruster particles position
-        if (thrusterParticles) {
-            thrusterParticles.position.copy(spaceship.position);
-        }
-
-        // Update spaceship controls
-        spaceshipControls.update(delta);
 
         // Move asteroids randomly
         asteroids.forEach(asteroid => {
-            asteroid.position.x += (Math.random() - 0.5) * delta;
-            asteroid.position.y += (Math.random() - 0.5) * delta;
-            asteroid.position.z += (Math.random() - 0.5) * delta;
+            const speed = asteroid.userData.speed;
+            const distance = asteroid.userData.distance;
+            asteroid.userData.angle += speed * delta; // Update angle based on speed and delta time
+            asteroid.position.x = distance * Math.cos(asteroid.userData.angle);
+            asteroid.position.z = distance * Math.sin(asteroid.userData.angle);
             asteroid.rotation.x += (Math.random() - 0.5) * delta * 0.1;
             asteroid.rotation.y += (Math.random() - 0.5) * delta * 0.1;
             asteroid.rotation.z += (Math.random() - 0.5) * delta * 0.1;

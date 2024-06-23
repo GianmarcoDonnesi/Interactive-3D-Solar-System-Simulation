@@ -5,9 +5,9 @@ import { initScene, createRenderer, createCamera, createLight, createSunLight } 
 import { createSun, createPlanets, createAsteroids, createOrbits } from './objects.js';
 import { addControls } from './controls.js';
 import { animate } from './animate.js';
-import SpaceshipControls from './spaceshipControls.js';
+import SpaceStationControls from './SpaceStation.js';
 
-let scene, camera, renderer, sun, planets, sunLight, asteroids, background, raycaster, mouse, spaceship, spaceshipControls, thrusterParticles, controls;
+let scene, camera, renderer, sun, planets, sunLight, asteroids, background, raycaster, mouse, spacestation, spacestationControls, controls;
 let selectedPlanet = null;
 let showHelpers = true; // Variable to control the visibility of light helpers
 const planetData = [
@@ -46,8 +46,6 @@ function init() {
     sun.castShadow = true;
     scene.add(sun);
 
-    const sunRadius = 1; // Assuming the radius of the sun sphere is 1
-
     // Add planets to the scene
     planets = createPlanets(THREE, textureLoader);
     planets.forEach((planet, index) => {
@@ -60,18 +58,12 @@ function init() {
         planet.material.roughness = 0.9; // Less roughness for more reflection
         planet.material.metalness = 0.0; // Slight metalness for shinier appearance
 
-        // Calculate initial position for the point light on the surface of the sun
-        const direction = new THREE.Vector3();
-        direction.subVectors(planet.position, sun.position).normalize();
-        const lightPosition = direction.clone().multiplyScalar(sunRadius).add(sun.position);
-
         // Add a dynamic point light for each planet
-        const pointLight = new THREE.PointLight(0xffffff, 2, 1000); // Adjusted intensity and distance
+        const pointLight = new THREE.PointLight(0xffffff, 3, 1000); // Adjusted intensity and distance
         pointLight.castShadow = true;
         pointLight.shadow.mapSize.width = 4096; // Increased shadow map size
         pointLight.shadow.mapSize.height = 4096; // Increased shadow map size
         pointLight.shadow.bias = -0.0001; // Adjusted bias
-        pointLight.position.copy(lightPosition);
         scene.add(pointLight);
         planet.userData.pointLight = pointLight;
 
@@ -85,7 +77,7 @@ function init() {
         scene.add(lightHelper);
 
         // Add an arrow helper to visualize the direction of the light
-        const arrowHelper = new THREE.ArrowHelper(direction, lightPosition, planet.userData.distance, 0xff0000);
+        const arrowHelper = new THREE.ArrowHelper(new THREE.Vector3(), new THREE.Vector3(), 0, 0xff0000);
         scene.add(arrowHelper);
         planet.userData.arrowHelper = arrowHelper;
         planet.userData.lightHelper = lightHelper; // Store the light helper
@@ -100,7 +92,7 @@ function init() {
     asteroids.forEach(asteroid => scene.add(asteroid));
 
     // Add ambient light
-    const ambientLight = new THREE.AmbientLight(0x404040, 2); // Reduce ambient light intensity
+    const ambientLight = new THREE.AmbientLight(0x404040, 2.9); // Reduce ambient light intensity
     scene.add(ambientLight);
 
     // Add controls
@@ -116,42 +108,32 @@ function init() {
     background = new THREE.Mesh(starGeometry, starMaterial);
     scene.add(background);
 
-    // Load the spaceship model
+    // Load the spacestation model and place it near Earth
     const loader = new GLTFLoader();
     loader.load('models/ISS_stationary.glb', (gltf) => {
-        spaceship = gltf.scene;
-        spaceship.traverse((child) => {
+        spacestation = gltf.scene;
+        spacestation.traverse((child) => {
             if (child.isMesh) {
                 child.castShadow = true;
                 child.receiveShadow = true;
             }
         });
-        spaceship.scale.set(0.5, 0.5, 0.5);
-        spaceship.position.set(50, 50, -50);
-        spaceship.lookAt(sun.position);
-        scene.add(spaceship);
+        spacestation.scale.set(0.0012, 0.0013, 0.0013); // Shrink the model to a more realistic size
 
-        // Initialize spaceship controls
-        spaceshipControls = new SpaceshipControls(spaceship, 0.5);
+        const earth = planets.find(planet => planet.userData.name === 'Earth');
+        if (earth) {
+            spacestation.position.set(earth.position.x + 1, earth.position.y, earth.position.z);
+            spacestation.lookAt(earth.position);
+            scene.add(spacestation);
 
-        // Create thruster particles
-        const particleGeometry = new THREE.BufferGeometry();
-        const particleCount = 1000;
-        const positions = new Float32Array(particleCount * 3);
-        for (let i = 0; i < particleCount; i++) {
-            positions[i * 3] = Math.random() * 2 - 1;
-            positions[i * 3 + 1] = Math.random() * 2 - 1;
-            positions[i * 3 + 2] = Math.random() * 2 - 1;
+            // Initialize spacestation controls
+            spacestationControls = new SpaceStationControls(spacestation, earth, camera, controls);
+
+            // Start the animation loop with spacestation
+            animate(THREE, renderer, scene, camera, sun, planets, settings, spacestation, spacestationControls, controls, selectedPlanet, asteroids);
         }
-        particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        const particleMaterial = new THREE.PointsMaterial({ color: 0xff6600, size: 0.1, transparent: true, opacity: 0.7 });
-        thrusterParticles = new THREE.Points(particleGeometry, particleMaterial);
-        scene.add(thrusterParticles);
-
-        // Start the animation loop with spaceship
-        animate(THREE, renderer, scene, camera, sun, planets, settings, spaceship, spaceshipControls, thrusterParticles, controls, selectedPlanet, asteroids);
     }, undefined, (error) => {
-        console.error('Error loading spaceship model:', error);
+        console.error('Error loading spacestation model:', error);
     });
 
     // Add event listeners for tooltip and click events
@@ -228,7 +210,4 @@ function onWindowResize() {
 }
 
 init();
-
-
-
 

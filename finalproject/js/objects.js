@@ -124,19 +124,26 @@ export function createPlanets(THREE, textureLoader) {
 
 export function createAsteroids(THREE, textureLoader) {
     const asteroids = [];
-    const asteroidGeometry = new THREE.SphereGeometry(0.05, 16, 16); // Reduced size
+    const asteroidGeometry = new THREE.SphereGeometry(0.05, 16, 16);
     const asteroidTexture = textureLoader.load('textures/asteroid.jpg');
     const asteroidMaterial = new THREE.MeshStandardMaterial({ map: asteroidTexture });
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 200; i++) { // Increase the number of asteroids for a denser belt
         const asteroid = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
+        const distance = Math.random() * 2 + 8; // Randomize distance to form a belt between 8 and 10 units from the sun
+        const angle = Math.random() * Math.PI * 2;
         asteroid.position.set(
-            Math.random() * 20 - 10,
-            Math.random() * 20 - 10,
-            Math.random() * 20 - 10
+            distance * Math.cos(angle),
+            (Math.random() - 0.5) * 0.2, // Slight vertical variation
+            distance * Math.sin(angle)
         );
-        asteroid.castShadow = true; // Asteroid casts shadow
-        asteroid.receiveShadow = true; // Asteroid receives shadow
+        asteroid.castShadow = true;
+        asteroid.receiveShadow = true;
+        asteroid.userData = {
+            speed: Math.random() * 0.001 + 0.0001, // Random speed
+            angle: angle, // Store initial angle
+            distance: distance // Store distance from the sun
+        };
         asteroids.push(asteroid);
     }
 
