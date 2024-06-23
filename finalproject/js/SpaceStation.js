@@ -13,7 +13,7 @@ class SpaceStationControls {
   }
 
   onKeyDown(event) {
-    if (event.key === 'l') { // Press 'L' to lock/unlock view
+    if (event.key === 'l') { // Press 'l' to lock/unlock view
       this.viewLocked = !this.viewLocked;
       if (this.viewLocked) {
         this.lockView();
