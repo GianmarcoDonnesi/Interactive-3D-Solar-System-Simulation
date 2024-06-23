@@ -1,6 +1,6 @@
 # Space exploration: An Interactive 3D Solar System Simulation
 
-![Solar System GIF](https://github.com/GianmarcoDonnesi/InteractiveComputerGraphics-FinalProject/blob/main/SolarSystemRec.gif)
+<img src="https://github.com/GianmarcoDonnesi/InteractiveComputerGraphics-FinalProject/blob/main/SolarSystemRec.gif" alt="Solar System Simulation" width="500"/>
 
 ## Overview
 
