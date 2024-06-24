@@ -140,7 +140,7 @@ export function createAsteroids(THREE, textureLoader) {
         asteroid.castShadow = true;
         asteroid.receiveShadow = true;
         asteroid.userData = {
-            speed: Math.random() * 0.001 + 0.0001, // Random speed
+            speed: Math.random() * 0.001 + 0.01, // Random speed
             angle: angle, // Store initial angle
             distance: distance // Store distance from the sun
         };

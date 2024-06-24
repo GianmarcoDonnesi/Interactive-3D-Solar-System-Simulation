@@ -47,3 +47,16 @@ export function createDirectionalLight(THREE) {
     directionalLight.shadow.mapSize.height = 2048;
     return directionalLight;
 }
+
+export function loadHDRIEnvironment(THREE, renderer, scene, textureLoader) {
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    pmremGenerator.compileEquirectangularShader();
+
+    textureLoader.load('textures/space_hdr.hdr', (texture) => {
+        const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+        scene.environment = envMap;
+        scene.background = envMap;
+        texture.dispose();
+        pmremGenerator.dispose();
+    });
+}

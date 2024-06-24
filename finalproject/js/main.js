@@ -1,7 +1,8 @@
 // main.js
+// main.js
 import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js';
-import { initScene, createRenderer, createCamera, createLight, createSunLight } from './scene.js';
+import { initScene, createRenderer, createCamera, createLight, createSunLight, loadHDRIEnvironment } from './scene.js';
 import { createSun, createPlanets, createAsteroids, createOrbits } from './objects.js';
 import { addControls } from './controls.js';
 import { animate } from './animate.js';
@@ -45,6 +46,9 @@ function init() {
     sun = createSun(THREE, textureLoader);
     sun.castShadow = true;
     scene.add(sun);
+
+    // Load an HDRI environment for realistic lighting
+    loadHDRIEnvironment(THREE, renderer, scene, textureLoader);
 
     // Add planets to the scene
     planets = createPlanets(THREE, textureLoader);
@@ -92,7 +96,7 @@ function init() {
     asteroids.forEach(asteroid => scene.add(asteroid));
 
     // Add ambient light
-    const ambientLight = new THREE.AmbientLight(0x404040, 2.9); // Reduce ambient light intensity
+    const ambientLight = new THREE.AmbientLight(0x404040, 3.5); // Reduce ambient light intensity
     scene.add(ambientLight);
 
     // Add controls
@@ -118,7 +122,7 @@ function init() {
                 child.receiveShadow = true;
             }
         });
-        spacestation.scale.set(0.0012, 0.0013, 0.0013); // Shrink the model to a more realistic size
+        spacestation.scale.set(0.0011, 0.0011, 0.0011); // Shrink the model to a more realistic size
 
         const earth = planets.find(planet => planet.userData.name === 'Earth');
         if (earth) {
@@ -210,4 +214,5 @@ function onWindowResize() {
 }
 
 init();
+
 
