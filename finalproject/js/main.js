@@ -1,16 +1,16 @@
-// main.js
-// main.js
 import * as THREE from 'https://cdn.skypack.dev/three@0.132.2';
 import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.132.2/examples/jsm/loaders/GLTFLoader.js';
-import { initScene, createRenderer, createCamera, createLight, createSunLight, loadHDRIEnvironment } from './scene.js';
+import { initScene, createRenderer, createCamera, loadHDRIEnvironment } from './scene.js';
 import { createSun, createPlanets, createAsteroids, createOrbits } from './objects.js';
 import { addControls } from './controls.js';
 import { animate } from './animate.js';
 import SpaceStationControls from './SpaceStation.js';
 
-let scene, camera, renderer, sun, planets, sunLight, asteroids, background, raycaster, mouse, spacestation, spacestationControls, controls;
+let scene, camera, renderer, sun, planets, asteroids, background, raycaster, mouse, spacestation, spacestationControls, controls;
 let selectedPlanet = null;
 let showHelpers = true; // Variable to control the visibility of light helpers
+
+// Planetary data
 const planetData = [
     { name: 'Mercury', distance: 2, eccentricity: 0.205, revolutionTime: 0.241, temperature: 167 },
     { name: 'Venus', distance: 3, eccentricity: 0.0067, revolutionTime: 0.615, temperature: 464 },
@@ -58,16 +58,16 @@ function init() {
         planet.userData = planetData[index];
         scene.add(planet);
 
-        // Adjust planet material properties for better reflection
-        planet.material.roughness = 0.9; // Less roughness for more reflection
-        planet.material.metalness = 0.0; // Slight metalness for shinier appearance
+        // Planet material properties for better reflection
+        planet.material.roughness = 1.0; 
+        planet.material.metalness = 0.0;
 
         // Add a dynamic point light for each planet
-        const pointLight = new THREE.PointLight(0xffffff, 3, 1000); // Adjusted intensity and distance
+        const pointLight = new THREE.PointLight(0xffffff, 3, 1000); // Intensity and distance
         pointLight.castShadow = true;
-        pointLight.shadow.mapSize.width = 4096; // Increased shadow map size
-        pointLight.shadow.mapSize.height = 4096; // Increased shadow map size
-        pointLight.shadow.bias = -0.0001; // Adjusted bias
+        pointLight.shadow.mapSize.width = 4096; 
+        pointLight.shadow.mapSize.height = 4096; 
+        pointLight.shadow.bias = -0.0001; 
         scene.add(pointLight);
         planet.userData.pointLight = pointLight;
 
@@ -84,7 +84,7 @@ function init() {
         const arrowHelper = new THREE.ArrowHelper(new THREE.Vector3(), new THREE.Vector3(), 0, 0xff0000);
         scene.add(arrowHelper);
         planet.userData.arrowHelper = arrowHelper;
-        planet.userData.lightHelper = lightHelper; // Store the light helper
+        planet.userData.lightHelper = lightHelper; 
     });
 
     // Add orbits to the scene
@@ -96,7 +96,7 @@ function init() {
     asteroids.forEach(asteroid => scene.add(asteroid));
 
     // Add ambient light
-    const ambientLight = new THREE.AmbientLight(0x404040, 3.5); // Reduce ambient light intensity
+    const ambientLight = new THREE.AmbientLight(0x404040, 3.5);
     scene.add(ambientLight);
 
     // Add controls
@@ -112,7 +112,7 @@ function init() {
     background = new THREE.Mesh(starGeometry, starMaterial);
     scene.add(background);
 
-    // Load the spacestation model and place it near Earth
+    // Load the spacestation model
     const loader = new GLTFLoader();
     loader.load('models/ISS_stationary.glb', (gltf) => {
         spacestation = gltf.scene;
@@ -140,15 +140,15 @@ function init() {
         console.error('Error loading spacestation model:', error);
     });
 
-    // Add event listeners for tooltip and click events
+    // Event listeners for tooltip and click events
     window.addEventListener('mousemove', onMouseMove, false);
     window.addEventListener('click', onClick, false);
     window.addEventListener('keydown', onKeyDown, false);
 
-    // Add event listener for window resize
+    // Event listener for window resize
     window.addEventListener('resize', onWindowResize, false);
 
-    // Add event listener for toggling light helpers
+    // Event listener for toggling light helpers
     const toggleButton = document.getElementById('toggleHelpers');
     toggleButton.addEventListener('click', () => {
         showHelpers = !showHelpers;
@@ -214,5 +214,3 @@ function onWindowResize() {
 }
 
 init();
-
-
