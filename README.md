@@ -1,12 +1,12 @@
 # Space Exploration: An Interactive 3D Solar System Simulation
 
-<img src="https://github.com/GianmarcoDonnesi/Interactive-3D-Solar-System-Simulation/blob/main/Projectcover.jpg" alt="Solar System Simulation" width="700"/>
+<img src="https://github.com/GianmarcoDonnesi/Interactive-3D-Solar-System-Simulation/blob/main/Projectcover.jpg" alt="Solar System Simulation" width="730"/>
 
 ## Overview
 
 Welcome to the interactive 3D solar system simulation! This project offers users an immersive experience by allowing them to explore and interact with the planets and the International Space Station (ISS). Navigate through space using custom controls, observe the precise orbits of the planets, and get a close-up view of the ISS as it orbits Earth. This simulation provides a visually rich and interactive way to learn about our solar system, using advanced web technologies to bring celestial dynamics to life.
 
-<img src="https://github.com/GianmarcoDonnesi/InteractiveComputerGraphics-FinalProject/blob/main/SolarSystemRec.gif" alt="Solar System Simulation" width="700"/>
+<img src="https://github.com/GianmarcoDonnesi/InteractiveComputerGraphics-FinalProject/blob/main/SolarSystemRec.gif" alt="Solar System Simulation" width="600"/>
 
 
 ## Functionality and Key Features
