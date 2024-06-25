@@ -1,4 +1,4 @@
-# Space exploration: An Interactive 3D Solar System Simulation
+# Space Exploration: An Interactive 3D Solar System Simulation
 
 <img src="https://github.com/GianmarcoDonnesi/InteractiveComputerGraphics-FinalProject/blob/main/SolarSystemRec.gif" alt="Solar System Simulation" width="700"/>
 
@@ -15,7 +15,6 @@ Welcome to the interactive 3D solar system simulation! This project offers users
 - **Realistic Sun Illumination**: Experience realistic lighting effects where the sun illuminates the planets, casting dynamic shadows that enhance the visual realism.
 - **Shadow Projection**: Observe accurate shadow projections of celestial bodies, adding depth and authenticity to the scene.
 - **Animation Loop**: Enjoy a continuously updating scene with an animation loop that keeps the simulation dynamic and engaging.
-
 
 ## Setup and Requirements
 
@@ -35,7 +34,7 @@ Ensure you have the following installed on your system:
 
 2. **Navigate to the project directory**:
     ```bash
-    cd Interactive 3D Solar System Simulation/finalproject
+    cd Interactive-3D-Solar-System-Simulation/finalproject
     ```
 
 3. **Install dependencies**:
@@ -68,12 +67,11 @@ Ensure you have the following installed on your system:
 - **`js/scene.js`**: Manages the 3D scene setup, including lighting, camera, and renderer configuration.
 - **`js/controls.js`**: Implements custom controls for user interaction and navigation within the 3D scene.
 - **`js/animate.js`**: Contains the animation loop that updates and renders the scene at each frame.
-- **`js/spaceshipControls.js`**: Provides the logic for controlling the spaceship within the scene.
 - **`js/main.js`**: Initializes the application and starts the animation loop.
 - **`js/objects.js`**: Defines the 3D objects, such as planets, asteroids, and orbits, used in the scene.
-- **`textures/`**: Contains all the realistic textures for the planets, background, and asteroids.
-- **`model/`**: Contains the 3D model  *ISS_stationary.glb* of the International Space Station.
-
+- **`js/SpaceStation.js`**: Manages the creation and placement of the International Space Station model within the scene.
+- **`textures/`**: Contains all the realistic textures for the planets, background, asteroids and HDRI environment.
+- **`model/`**: Contains the 3D model `ISS_stationary.glb` of the International Space Station.
 
 ## License
 
