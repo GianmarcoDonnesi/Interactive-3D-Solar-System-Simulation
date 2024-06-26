@@ -15,7 +15,7 @@ export function createRenderer(THREE) {
 
 export function createCamera(THREE) {
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.z = 10; // Adjust camera position to fit the entire solar system
+    camera.position.z = 10; 
     return camera;
 }
 
@@ -38,6 +38,7 @@ export function createSunLight(THREE) {
     return sunLight;
 }
 
+// If needed
 export function createDirectionalLight(THREE) {
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
     directionalLight.position.set(10, 10, 10);

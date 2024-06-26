@@ -48,12 +48,13 @@ class SpaceStationControls {
   }
 
   rotateAroundPlanet(delta) {
-    const orbitRadius = 1; // Distance from the planet
-    const orbitSpeed = 0.06; // Speed of the space station's rotation around the planet
-    const angle = Date.now() * 0.001 * orbitSpeed; // Calculate the current angle based on time and speed
+    const orbitRadius = 1.3; // Distance from the planet
+    const orbitSpeed = 0.001; // Speed of the space station's rotation around the planet
+    const angle = Date.now() * 0.0011 * orbitSpeed; // Calculate the current angle based on time and speed
+    const heightOffset = 0.6;
     this.spacestation.position.set(
       this.planet.position.x + orbitRadius * Math.cos(angle), 
-      this.planet.position.y, 
+      this.planet.position.y + heightOffset, 
       this.planet.position.z + orbitRadius * Math.sin(angle) 
     );
     this.spacestation.lookAt(this.planet.position); // Make the space station look at the planet

@@ -37,7 +37,7 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
     // Main render loop
     function render() {
         requestAnimationFrame(render);
-        const delta = clock.getDelta();
+        const delta = clock.getDelta(); // time spent between frames
 
         
         sun.rotation.y += settings.rotationSpeed;

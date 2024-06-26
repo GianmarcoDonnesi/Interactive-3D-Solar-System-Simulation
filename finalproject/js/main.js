@@ -118,7 +118,7 @@ function init() {
         spacestation = gltf.scene;
         spacestation.traverse((child) => {
             if (child.isMesh) {
-                child.castShadow = true;
+                child.castShadow = false;
                 child.receiveShadow = true;
             }
         });
