@@ -14,9 +14,7 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
             `.replace(
                 `#include <begin_vertex>`, // Find the beginning of the vertex transformation code
                 `#include <begin_vertex>
-                transformed.x += 0.5 * sin(time + position.y);
-                transformed.y += 0.5 * cos(time + position.x);
-                transformed.z += 0.5 * sin(time + position.z);
+                transformed += normal * sin(time * 5.0 + position.x * 5.0) * 0.1;
                 `
             );
 
@@ -25,8 +23,8 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
                 uniform float time;
                 ${shader.fragmentShader}
             `.replace(
-                `gl_FragColor = vec4( outgoingLight, diffuseColor.a );`, // Find the final color assignment
-                `gl_FragColor = vec4( outgoingLight * (1.0 + 0.5 * sin(time)), diffuseColor.a );` // Apply a pulsating effect to the outgoing light
+                `gl_FragColor = vec4( outgoingLight * (1.0 + 1.0 * sin(time * 10.0)), diffuseColor.a );`, // Find the final color assignment
+                `gl_FragColor = vec4( outgoingLight * (1.0 + 1.0 * sin(time * 2.0)), diffuseColor.a );` // Apply a pulsating effect to the outgoing light
             );
 
             // Store the shader in the material's userData for later use
@@ -43,7 +41,7 @@ export function animate(THREE, renderer, scene, camera, sun, planets, settings, 
         sun.rotation.y += settings.rotationSpeed;
 
         // Add pulsation effect to the sun
-        sun.material.emissiveIntensity = 1.5 + Math.sin(Date.now() * 0.005) * 0.5;
+        sun.material.emissiveIntensity = 1.5 + Math.sin(Date.now() * 0.002) * 1.0;
 
         // Update time uniform
         if (sun.material.userData.shader) {

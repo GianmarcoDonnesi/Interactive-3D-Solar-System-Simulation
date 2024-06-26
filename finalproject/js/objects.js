@@ -7,8 +7,8 @@ export function createSun(THREE, textureLoader) {
         uniforms: {
             time: { value: 0 }, // Time uniform for animation
             sunTexture: { value: texture }, // Texture uniform
-            noiseFrequency: { value: 1.5 }, // Noise frequency uniform
-            noiseAmplitude: { value: 0.5 } // Noise amplitude uniform
+            noiseFrequency: { value: 3.0 }, // Noise frequency uniform
+            noiseAmplitude: { value: 0.2 } // Noise amplitude uniform
         },
         vertexShader: `
             varying vec2 vUv;
