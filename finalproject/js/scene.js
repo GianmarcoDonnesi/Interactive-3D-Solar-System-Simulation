@@ -25,7 +25,7 @@ export function createLight(THREE) {
 }
 
 export function createSunLight(THREE) {
-    const sunLight = new THREE.PointLight(0xffffff, 100, 1000); // Increased intensity to 50
+    const sunLight = new THREE.PointLight(0xffffff, 100, 1000); 
     sunLight.position.set(0, 0, 0);
     sunLight.castShadow = true;
     sunLight.shadow.mapSize.width = 4096; 
